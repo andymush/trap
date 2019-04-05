@@ -1,0 +1,30 @@
+{% extends 'music/base.html' %}
+{% load crispy_forms_tags %}
+{% block title %}{% if object %}Update song{%else%}New song{% endif %}{% endblock %}
+
+{%block content%}
+    <div class="container">
+        <div class="row">
+            <div class="col-sm-4">
+                <div class="panel panel-primary">
+                    <div class="panel-body">
+                        <h3 class="text-primary text-capitalize">{% if object %}update song{%else%}new song{% endif %}</h3>
+                        <hr>
+                        <form method="post" enctype="multipart/form-data">
+                            {% if message %}
+                            <div class="alert alert-danger">
+                                <h4 class="text-danger">{{ message }}</h4>
+                            </div>
+                            {% endif %}
+                            {% csrf_token %}
+                            {{ form|crispy }}
+                            <div class="form-group">
+                                <button type="submit" class="btn btn-success">Add song</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
