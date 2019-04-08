@@ -4,13 +4,27 @@ from .forms import Albumform, SongForm, UserForm
 from django.views.generic import UpdateView
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
+from django.db.models import Q
 
 
 # Create your views here.
 @login_required(login_url='music:login')
 def index(request):
-    albums = Album.objects.all()
-    return render(request, 'music/index.html', {'albums': albums})
+    albums = Album.objects.filter(user=request.user)
+    song_results = Song.objects.all()
+    query = request.GET.get("q")
+    if query:
+        albums = albums.filter(
+            Q(album_name__icontains=query) |
+            Q(artist_name__icontains=query)
+        ).distinct()
+        song_results = song_results.filter(
+            Q(song_name__icontains=query)
+        ).distinct()
+    return render(request, 'music/index.html', {
+        'albums': albums,
+        'songs': song_results,
+    })
 
 
 def detail(request, album_id):
@@ -21,7 +35,7 @@ def detail(request, album_id):
 def create_album(request):
     form = Albumform(request.POST or None, request.FILES or None)
     if form.is_valid():
-        albums = Album.objects.all()
+        albums = Album.objects.filter(user=request.user)
         for album in albums:
             if album.album_name == form.cleaned_data.get('album_name'):
                 context = {
@@ -31,6 +45,7 @@ def create_album(request):
                 return render(request, 'music/create_album.html', context)
         album = form.save(commit=False)
         album.album_cover = request.FILES['album_cover']
+        album.user = request.user
         album.save()
         return render(request, 'music/detail.html', {'album': album})
     return render(request, 'music/create_album.html', {'form': form})
@@ -91,28 +106,28 @@ def delete_song(request, album_id, song_id):
 def signup(request):
     form = UserForm(request.POST or None)
     if form.is_valid():
-        email = form.cleaned_data['email']
+        username = form.cleaned_data['username']
         password = form.cleaned_data['password']
         user = form.save(commit=False)
         user.set_password(password)
         user.save()
-        user = authenticate(email=email, password=password)
+        user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
                 login(request, user)
                 return redirect('music:index')
-    return render(request,'registration/signup.html', {'form':form})
+    return render(request, 'registration/signup.html', {'form': form})
 
 
 def signin(request):
     if request.method == 'POST':
-        email = request.POST['email']
+        username = request.POST['username']
         password = request.POST['password']
-        user = authenticate(email=email, password=password)
-        #if user.is_active:
-        login(request, user)
-        return redirect('music:index')
-        #return render(request, 'registration/login.html', {message'Account deactivated')
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            if user.is_active:
+                login(request, user)
+                return redirect('music:index')
     return render(request, 'registration/login.html')
 
 
@@ -121,4 +136,4 @@ def logout_user(request):
     context = {
         'message': 'Logged Out!'
     }
-    return render(request, 'registration/login.html', context)
+    return redirect('music:login')

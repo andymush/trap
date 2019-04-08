@@ -1,9 +1,11 @@
 from django.db import models
 from django.shortcuts import reverse
+from django.contrib.auth.models import User
 
 
 # Create your models here.
 class Album(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     album_name = models.CharField(max_length=25)
     artist_name = models.CharField(max_length=30)
     album_genre = models.CharField(max_length=10)

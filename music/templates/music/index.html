@@ -4,6 +4,7 @@
 {%block content%}
 <div class="container-fluid" >
     <div class="row">
+        <h3 class="text-primary" >Welcome back!:{{request.user.username}} </h3>
         {% if albums %}
             {% for album in albums %}
                 <div class="col-sm-3">
