@@ -4,7 +4,7 @@
 {%block content%}
 <div class="container-fluid" >
     <div class="row">
-        <h3 class="text-primary" >Welcome back!:{{request.user.username}} </h3>
+        <h3 class="text-primary" >Welcome {{request.user.username}} </h3>
         {% if albums %}
             {% for album in albums %}
                 <div class="col-sm-3">
@@ -17,6 +17,7 @@
                         <h5>{{album.artist_name}}</h5>
                         <a href="{% url 'music:album-update' album.id %}" class="btn btn-info btn-sm"><i class="fas fa-edit"></i> </a>
                         <a href="{% url 'music:album-delete' album.id %}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i> </a>
+                        <a href="{% url 'music:album-favorite' album.id %}" class="btn btn-success btn-sm btn-favorite" style="border: 1px solid slategray;"><span class="glyphicon glyphicon-star{% if album.is_favorite %}active{% endif %}"></span></a>
                     </div>
                 </div>
                 </div>

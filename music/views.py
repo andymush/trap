@@ -5,6 +5,7 @@ from django.views.generic import UpdateView
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.db.models import Q
+from django.http import JsonResponse
 
 
 # Create your views here.
@@ -137,3 +138,31 @@ def logout_user(request):
         'message': 'Logged Out!'
     }
     return redirect('music:login')
+
+
+def favorite_album(request, album_id):
+    album = get_object_or_404(Album, pk=album_id)
+    try:
+        if album.is_favorite:
+            album.is_favorite = False
+        else:
+            album.is_favorite = True
+        album.save()
+        return redirect('music:index')
+    except Album.DoesNotExist():
+        return redirect('music:index')
+
+
+def favorite_song(request, album_id, song_id):
+    song = get_object_or_404(Song, pk=song_id)
+    album = get_object_or_404(Album, pk=album_id)
+    try:
+        if song.is_favorite:
+            song.is_favorite = False
+        else:
+            song.is_favorite = True
+        song.save()
+    except Song.DoesNotExist:
+        return render(request, 'music/detail.html', {'album': album})
+    else:
+        return render(request, 'music/detail.html', {'album': album})

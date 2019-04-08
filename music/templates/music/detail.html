@@ -43,7 +43,7 @@
                         <tr>
                             <td>{{ song.song_name}}</td>
                             <td><a href="{{song.song_audio.url}}" class="btn btn-primary btn-sm" target="_blank"><i class="fas fa-play"></i> </a> </td>
-                            <td><a href="" class="btn btn-danger btn-sm"><i class="fas fa-heart"></i> </a> </td>
+                            <td><a href="{% url 'music:album-favorite' album.id %}" class="btn btn-success btn-sm btn-favorite" style="border: 1px solid slategray;"><span class="glyphicon glyphicon-star{% if album.is_favorite %}active{% endif %}"></span></a> </td>
                             <td><a href="{% url 'music:song-update' song.id %}" class="btn btn-success btn-sm"><i class="fas fa-edit"></i> </a> <a href="{% url 'music:song-delete' album.id song.id %}" class="btn btn-danger btn-sm"><i class="fas fa-trash"></i></a></td>
                         </tr>
                         {% endfor %}
